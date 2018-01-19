@@ -111,23 +111,23 @@ void setup() {
     }
 }
 
-void parseDateTime(DateTime dateTime, char* hourBuffer, char* secondsBuffer) {
+void parseDateTime(DateTime dateTime, char* hourBuffer, char* minutesBuffer) {
     snprintf(hourBuffer, 3, "%02i", dateTime.hour());
-    snprintf(secondsBuffer, 3, "%02i", dateTime.second());
+    snprintf(minutesBuffer, 3, "%02i", dateTime.minute());
 }
 
 void drawTime(DateTime dt, byte brightness = 10, byte offsetX = 0, byte offsetY = 0) {
     char hourBuffer[3] = {};
-    char secondsBuffer[3] = {};
-    parseDateTime(dt, hourBuffer, secondsBuffer);
+    char minutesBuffer[3] = {};
+    parseDateTime(dt, hourBuffer, minutesBuffer);
 
     drawMatrix(digits[hourBuffer[0] - '0'], 3, 5, brightness, offsetX, offsetY);
     drawMatrix(digits[hourBuffer[1] - '0'], 3, 5, brightness, 3 + offsetX, offsetY);
     
     drawMatrix(timestampDot, 1, 3, 15, 6 + offsetX, 1 + offsetY);
     
-    drawMatrix(digits[secondsBuffer[0] - '0'], 3, 5, brightness, 7 + offsetX, offsetY);
-    drawMatrix(digits[secondsBuffer[1] - '0'], 3, 5, brightness, 10 + offsetX, offsetY);
+    drawMatrix(digits[minutesBuffer[0] - '0'], 3, 5, brightness, 7 + offsetX, offsetY);
+    drawMatrix(digits[minutesBuffer[1] - '0'], 3, 5, brightness, 10 + offsetX, offsetY);
 }
 
 void loop() {
