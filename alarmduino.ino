@@ -133,7 +133,7 @@ void drawTime(tmElements_t dateTime, byte brightness = 2, byte offsetX = 0, byte
 void loop() {
     delay(200);
 
-    tmElements_t now;
-    RTC.read(now);
-    drawTime(now);
+    tmElements_t nowTm = { 0, 0, 0, 0, 0, 0, 0 };
+    RTC.read(nowTm);
+    drawTime(nowTm);
 }
