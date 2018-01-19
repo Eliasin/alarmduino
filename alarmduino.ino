@@ -1,71 +1,72 @@
+#include <Time.h>
+#include <DS3232RTC.h>
+
 #include <Adafruit_IS31FL3731.h>
 
 #include <Wire.h>
-#include "DS3231.h"
 
-RTClib RTC;
 Adafruit_IS31FL3731 ledMatrix = Adafruit_IS31FL3731();
 
 const byte digits[10][15] = {
     //Zero
     {
-    1, 1, 1,
+    1, 3, 1,
     1, 0, 1,
     1, 0, 1,
     1, 0, 1, 
-    1, 1, 1
+    1, 3, 1
     },
     //One
     {
-    0, 1, 0,
-    1, 1, 0,
-    0, 1, 0,
-    0, 1, 0,
-    1, 1, 1
+    0, 3, 0,
+    1, 3, 0,
+    0, 3, 0,
+    0, 3, 0,
+    1, 3, 1
     },
     //Two
     {
-    1, 1, 1,
+    1, 3, 1,
     0, 0, 1,
-    1, 1, 1,
+    1, 3, 1,
     1, 0, 0, 
-    1, 1, 1    
+    1, 3, 1    
     },
     //Three
     {
-    1, 1, 1,
+    1, 3, 3,
     0, 0, 1,
-    1, 1, 1,
+    1, 3, 1,
     0, 0, 1,
-    1, 1, 1    
+    1, 3, 3    
     },
     //Four
     {
+    3, 0, 3,
     1, 0, 1,
-    1, 0, 1,
-    1, 1, 1,
+    1, 3, 1,
     0, 0, 1,
     0, 0, 1    
     },
     //Five
     {
-    1, 1, 1,
+    1, 3, 1,
     1, 0, 0,
-    1, 1, 1,
+    1, 3, 1,
     0, 0, 1,
-    1, 1, 1    
+    1, 3, 1    
     },
     //Six
     {
-    1, 1, 1,
+    1, 3, 1,
     1, 0, 0,
-    1, 1, 1,
+    1, 3, 1,
     1, 0, 1,
-    1, 1, 1    
+    1, 3, 1    
     },
     //Seven
     {
-    1, 1, 1,
+    1, 3, 1,
     0, 0, 1,
     0, 0, 1,
     0, 0, 1,
@@ -73,17 +74,17 @@ const byte digits[10][15] = {
     },
     //Eight
     {
-    1, 1, 1,
-    1, 0, 1,
-    1, 1, 1,
-    1, 0, 1,
-    1, 1, 1    
+    1, 3, 1,
+    3, 0, 3,
+    1, 3, 1,
+    3, 0, 3,
+    1, 3, 1    
     },
     //Nine
     {
-    1, 1, 1,
+    1, 3, 1,
     1, 0, 1,
-    1, 1, 1,
+    1, 3, 1,
     0, 0, 1,
     0, 0, 1    
     },
@@ -104,27 +105,26 @@ void drawMatrix(const byte* m, byte x, byte y, byte brightness = 1, byte offsetX
 }
 
 void setup() {
-    Serial.begin(9600);
     Wire.begin();
     if (!ledMatrix.begin()) {
         while(1);
     }
 }
 
-void parseDateTime(DateTime dateTime, char* hourBuffer, char* minutesBuffer) {
-    snprintf(hourBuffer, 3, "%02i", dateTime.hour());
-    snprintf(minutesBuffer, 3, "%02i", dateTime.minute());
+void parseDateTime(tmElements_t dateTime, char* hourBuffer, char* minutesBuffer) {
+    snprintf(hourBuffer, 3, "%02i", dateTime.Hour + 1);
+    snprintf(minutesBuffer, 3, "%02i", dateTime.Minute);
 }
 
-void drawTime(DateTime dt, byte brightness = 10, byte offsetX = 0, byte offsetY = 0) {
+void drawTime(tmElements_t dateTime, byte brightness = 2, byte offsetX = 0, byte offsetY = 0) {
     char hourBuffer[3] = {};
     char minutesBuffer[3] = {};
-    parseDateTime(dt, hourBuffer, minutesBuffer);
+    parseDateTime(dateTime, hourBuffer, minutesBuffer);
 
     drawMatrix(digits[hourBuffer[0] - '0'], 3, 5, brightness, offsetX, offsetY);
     drawMatrix(digits[hourBuffer[1] - '0'], 3, 5, brightness, 3 + offsetX, offsetY);
     
-    drawMatrix(timestampDot, 1, 3, 15, 6 + offsetX, 1 + offsetY);
+    drawMatrix(timestampDot, 1, 3, brightness * 5, 6 + offsetX, 1 + offsetY);
     
     drawMatrix(digits[minutesBuffer[0] - '0'], 3, 5, brightness, 7 + offsetX, offsetY);
     drawMatrix(digits[minutesBuffer[1] - '0'], 3, 5, brightness, 10 + offsetX, offsetY);
@@ -133,7 +133,7 @@ void drawTime(DateTime dt, byte brightness = 10, byte offsetX = 0, byte offsetY 
 void loop() {
     delay(200);
 
-    DateTime now = RTC.now();
-
+    tmElements_t now;
+    RTC.read(now);
     drawTime(now);
 }
